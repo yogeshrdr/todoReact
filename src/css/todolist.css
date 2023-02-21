@@ -1,0 +1,96 @@
+
+.todolist__header{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid black;
+    margin-bottom: 10px;
+    z-index: 100;
+    color: rgb(18, 16, 16);
+    background-color: rgb(252, 252, 252);
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.todolist_addtaskbtn{
+    background-color: transparent;
+    border: 1px solid rgb(18, 16, 16);
+    color: rgb(18, 16, 16);
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.todolist__form{
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    align-items: center;
+    background-color: white;
+    padding: 20px;
+    border-radius: 20px;
+}
+
+.todolist__form > label{
+    margin-top : 10px;
+    margin-bottom: 10px;
+}
+
+.todolist__form > input{
+    padding: 10px;
+    width: 300px;
+}
+
+
+.todolist__form > select{
+    padding: 10px;
+    margin-bottom: 10px;
+    width: 300px;
+}
+
+.todolist__form > button{
+    padding: 10px;
+    width: 100px;
+}
+
+table{
+    margin-top: 40px;
+    padding: 20px;
+    width: 80%;
+    margin-right: auto;
+    margin-left: auto;
+    border: 1px solid black;
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+th,td{
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+
+.todo__modal{
+    display: block;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 9999;
+    width: 100%;
+    height: 100%;
+    padding-top: 100px;
+    background-color: black;
+    background-color: rgba(0, 0, 0, 0.4);
+    -webkit-transition: 0.5s;
+    overflow: auto;
+    transition: all 0.3s linear;
+}
+
+
+.todo_notask{
+    margin-top: 40px;
+    font-size: 30px;
+    
+}
