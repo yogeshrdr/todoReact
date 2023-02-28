@@ -4,6 +4,7 @@ import Todo from './Todo';
 import '../css/todolist.css';
 import Card from './Card';
 import '../css/card.css';
+import { AiFillSetting } from "react-icons/ai";
 
 
 export class TodoList extends Component {
@@ -12,16 +13,20 @@ export class TodoList extends Component {
         this.state = {
             inputValue : {task: "", dueDate: "", priority: "low"},
             todos : [],
-            isOpen: false
+            isOpen: false,
+            filter: 'all',
+            filtertodos : [] // camelCases -> remove duplicate data
+            // on a folder -> arrange to scalable
+            //array ofcards
         };
     };
 
-
     componentDidMount(){
-        const todos = getLocalStorage("todos");
+        const todos = getLocalStorage("todos"); //Constants
         if(todos){
           this.setState({
-            todos
+            todos,
+            filtertodos: todos
           });
         }
     };
@@ -38,8 +43,7 @@ export class TodoList extends Component {
         this.setState({
           isOpen : value
         })
-    }
-
+    };
 
     handleTaskSubmit = (event) => {
         event.preventDefault();
@@ -48,13 +52,19 @@ export class TodoList extends Component {
           alert('Please Fill Details')
           return;
         }
+        
+        const date = new Date(this.state.inputValue.dueDate);
+        const dueDate = date.getTime();
+
+        console.log(dueDate);
 
         const task = {
           id: Date.now(),
           progress: 'assign',
           task : this.state.inputValue.task,
-          dueDate: this.state.inputValue.dueDate,
-          priority: this.state.inputValue.priority
+          dueDate,
+          priority: this.state.inputValue.priority,
+          completedDate: null
         };
 
         const todos = [...this.state.todos, task];
@@ -64,6 +74,8 @@ export class TodoList extends Component {
         this.setState({
           inputValue,
           todos: [...this.state.todos, task],
+          filtertodos : todos,
+          filter: 'all',
           isOpen: false
         });
     };
@@ -72,7 +84,8 @@ export class TodoList extends Component {
         const todos = this.state.todos.filter(todo =>todo.id !== id);
         setLocalStorage("todos", todos);
         this.setState({
-          todos
+          todos,
+          filtertodos: todos
         });
     };
 
@@ -87,6 +100,9 @@ export class TodoList extends Component {
     };
     
     getTotalProgress = (value) => {
+        if(value === 'all'){
+          return this.state.todos.length;
+        }
         var totalProgress = 0;
         this.state.todos.forEach((todo)=>{
           if(todo.progress === value){
@@ -96,9 +112,34 @@ export class TodoList extends Component {
         return totalProgress;
     };
 
+    onFilterChange = (value) => {
+      if(value === 'all'){
+        this.setState({
+          filtertodos : this.state.todos,
+          filter: value
+        });
+
+        return;
+      }
+
+      const todos = this.state.todos.filter(todo =>todo.progress === value);
+
+      this.setState({
+        filtertodos : todos,
+        filter: value
+      });
+    };
+
+    onCheckAll = (event) => {
+        if(event.target.checked === true){
+              
+        }else{
+
+        }
+    }
+
     
   render() {
-
     return (
       <div className='todolist'>
         <div className='todolist__header'>
@@ -106,87 +147,135 @@ export class TodoList extends Component {
           <button className='todolist_addtaskbtn' onClick={() => this.handleModal(true)}>Add Task + </button>
         </div>
 
-        <div className='todo__cardsDetail'>
-        <Card 
-        title="Task Assign"
-        data={this.state.todos.length}
-        />
+        <div className='todo__filterContainer'>
+          <div className='todo__cardsDetail'>
+            <Card 
+            title="All Task"
+            data={{
+              name: 'all',
+              length : this.getTotalProgress('all')
+            }}
+            isActive ={this.state.filter === 'all'}
+            onFilterChange = {this.onFilterChange}
+            />
 
-        <Card 
-        title="Task in Progress"
-        data={this.getTotalProgress('progress')}
-        />
+            <Card 
+            title="New Assign"
+            data={{
+              name: 'assign',
+              length: this.getTotalProgress('assign')
+            }}
+            isActive ={this.state.filter === 'assign'}
+            onFilterChange = {this.onFilterChange}
+            />
 
-        <Card 
-        title="Task Done"
-        data={this.getTotalProgress('done')}
-        />
+            <Card 
+            title="In Progress"
+            data={{
+              name: 'progress',
+              length: this.getTotalProgress('progress')
+            }}
+            isActive ={this.state.filter === 'progress'}
+            onFilterChange = {this.onFilterChange}
+            />
+            <Card 
+            title="Task Done"
+            data={{
+              name: 'done',
+              length: this.getTotalProgress('done')
+            }}
+            isActive={this.state.filter === 'done'}
+            onFilterChange = {this.onFilterChange}
+            />
+          </div>
+
+          <div className='todo__filterResults'>Total Results : {this.getTotalProgress(this.state.filter)}</div>
         </div>
+       
 
         {this.state.isOpen && 
-                  <div className='todo__modal'>
-                  <form className='todolist__form' onSubmit={this.handleTaskSubmit}>
-                    <button className='todolist__closebtn' type="button" onClick={() => this.handleModal(false)}>X</button>
+                <div className='todo__modalContainer'>
+                  <div className='todo__modal todo__modalslidein'>
+
+                  <div className='todolist__formHeader'>
+                      <div className='todolist__formHeading'> Add Task</div>
+                      <button className='todolist__closebtn' type="button" onClick={() => this.handleModal(false)}>X</button>
+                  </div>
+
+
+                  <form className='todolist__form ' onSubmit={this.handleTaskSubmit}>              
                       <label>Task</label>
                       <input 
+                      placeholder='Add Task....'
                       name="task" 
                       value={this.state.inputValue.task} 
-                      onChange={this.handleInputChange}/>
+                      onChange={this.handleInputChange}
+                      required
+                      />
           
                       <label>Due Date</label>
                       <input 
                       type="date" 
                       name="dueDate" 
                       value={this.state.inputValue.dueDate} 
-                      onChange={this.handleInputChange}/>
+                      onChange={this.handleInputChange}
+                      required
+                      />
           
                       <label>Priority</label>
                       <select 
                       name="priority" 
                       onChange={this.handleInputChange} 
                       defaultValue={this.state.inputValue.priority}>
-                          <option value="low">low</option>
+                          <option className='' value="low">low</option>
                           <option value="medium">Medium</option>
                           <option value="high">High</option>
                       </select>
-          
-                      <button type="submit">Add Todo</button>
+
+                      <div className='todolist__btncontainer'>
+                        <button className='todolist__formcancelBtn' type="button" onClick={() => this.handleModal(false)}>Cancel</button>
+                        <button className='todolist__formaddBtn' type="submit">Add Todo</button>
+                      </div>
                   </form>
                   </div>
+                </div>
         }
 
-        {this.state.todos.length === 0 ? 
-          <div className='todo_notask'>No task Assign</div>
+        
+
+          {this.state.filtertodos.length === 0 ?
+          <div className='todo_notask'>No Record Found</div>
           :
           <table>
-          <thead>
-            <tr>
-              <th>Task</th>
-              <th>Due Date</th>
-              <th>Progreess</th>
-              <th>Priority</th>
-              <th>Delete</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {this.state.todos.map((todo) => (
-              <tr key={todo.id}>
-              <Todo
-              todo={todo}
-              handleTaskDelete={this.handleTaskDelete}
-              handleTaskChange={this.handleTaskChange}
-              />
-            </tr>
-            ))}
-          </tbody>
-        </table>
+              <thead>
+                <tr>
+                  <th><input type="checkbox"/></th>
+                  <th>Task</th>
+                  <th>Due Date</th>
+                  <th>Task Complete Date</th>
+                  <th>Progress</th>
+                  <th>Priority</th>
+                  <th><AiFillSetting size="20px"/></th>
+                </tr>
+              </thead>
+              <tbody>
+                {this.state.filtertodos.map((todo) => (
+                  <tr key={todo.id}>
+                  <Todo
+                  todo={todo}
+                  handleTaskDelete={this.handleTaskDelete}
+                  handleTaskChange={this.handleTaskChange}
+                  />
+                </tr>
+                ))}
+              </tbody>
+            </table>
         }
+      
 
-       
       </div>
     )
   }
 }
 
-export default TodoList
+export default TodoList;

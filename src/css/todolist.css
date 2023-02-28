@@ -16,81 +16,215 @@
 .todolist_addtaskbtn{
     background-color: transparent;
     border: 1px solid rgb(18, 16, 16);
-    color: rgb(18, 16, 16);
+    color: rgb(18, 16, 16); 
     padding: 10px;
     border-radius: 10px;
-}
-
-.todolist__form{
-    display: flex;
-    flex-direction: column;
-    width: 50%;
-    margin-left: auto;
-    margin-right: auto;
-    align-items: center;
-    background-color: white;
-    padding: 20px;
-    border-radius: 20px;
-}
-
-.todolist__form > label{
-    margin-top : 10px;
-    margin-bottom: 10px;
-}
-
-.todolist__form > input{
-    padding: 10px;
-    width: 300px;
-}
-
-
-.todolist__form > select{
-    padding: 10px;
-    margin-bottom: 10px;
-    width: 300px;
-}
-
-.todolist__form > button{
-    padding: 10px;
-    width: 100px;
 }
 
 table{
     margin-top: 40px;
     padding: 20px;
-    width: 80%;
+    width: 90%;
     margin-right: auto;
     margin-left: auto;
-    border: 1px solid black;
-    border: 1px solid black;
+    border: 1px solid rgba(101, 101, 101, 0.938);
     border-collapse: collapse;
+    border-radius: 20px;
+    text-align: left;
+    align-items: center;
 }
 
-th,td{
-    border: 1px solid black;
+table tr th{
+    border-bottom: 1px solid rgba(101, 101, 101, 0.938);
     border-collapse: collapse;
+    padding: 10px 5px;
+    height: 40px;
+    background-color: #EDEEF0;
 }
 
+table tr th:nth-child(2) {
+    border-right: 1px solid black;
+}
+
+table tr td:nth-child(2) {
+    border-right: 1px solid black;
+}
+
+table tr th:last-child {
+    border-left: 1px solid black;
+    width: 100px;
+    text-align: center;
+    
+}
+
+table tr td:last-child {
+    border-left: 1px solid black;
+    text-align: center;
+}
+
+.todo__modalContainer{
+    display: block;
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    right: 0;
+    top: 0;
+    left: 0px;
+    background-color: rgb(182, 182, 182, 0.3);
+    animation:fadein .5s;
+}
+
+
+.todo__modalContainerFadeOut{
+    animation:fadeOut .5s;
+    display: none;
+}
 
 .todo__modal{
     display: block;
     position: fixed;
-    left: 0;
-    top: 0;
     z-index: 9999;
-    width: 100%;
-    height: 100%;
-    padding-top: 100px;
-    background-color: black;
-    background-color: rgba(0, 0, 0, 0.4);
-    -webkit-transition: 0.5s;
-    overflow: auto;
-    transition: all 0.3s linear;
+    right: 0;
+    top: 0;
+    height: 100vh;
+    width: 30vw;
+    background-color: white;
+    border-left: 1px solid black;
+    
+}
+
+.todo__modalslidein{
+    display: block;
+    animation: slideIn .5s;
+}
+
+.todo__modalslideOut{
+    animation: slideOut .5s;
+    display: none;
+}
+
+.todolist__formHeader{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    background-color: #EDEEF0;
+    height: 60px;
+    align-items: center;
+}
+
+.todolist__formHeading{
+    padding: 10px;
+    font-size: 20px;
+    font-weight: bold;
 }
 
 
+.todolist__closebtn{
+    background-color: transparent;
+    border: none;
+    padding: 10px;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.todolist__form{
+    display: flex;
+    flex-direction: column;
+    background-color: transparent;
+    width: 100%;
+    border-radius: 20px;
+}
+
+
+.todolist__form > label{
+    margin: 20px 10px 10px 10px;
+}
+
+.todolist__form > input{
+    margin: 0px 10px;
+    padding: 10px;
+}
+
+
+.todolist__form > select{
+    margin: 0px 10px;
+    background-color: white;
+    border: 1px solid black;
+    padding: 10px;
+}
+
+.todolist__btncontainer{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    border-top: 1px solid black;
+    padding: 10px;
+    width: 100%;
+    position: absolute;
+    bottom: 0px;
+}
+
+.todolist__formaddBtn{
+    padding: 10px;
+    width: 100px;
+    margin-top: 10px;
+    border: 1px solid black;
+    border-radius: 5px;
+    margin-right: 20px;
+}
+
+.todolist__formcancelBtn{
+    padding: 10px;
+    width: 100px;
+    margin-top: 10px;
+    margin-right: 10px;
+    background-color: transparent;
+    border: 1px solid black;
+    border-radius: 5px;
+}
+
 .todo_notask{
-    margin-top: 40px;
+    margin-top: 200px;
     font-size: 30px;
-    
+    text-align: center;
+}
+
+
+@keyframes fadein {
+	from {
+		opacity:0;
+	}
+	to {
+		opacity:1;
+	}
+}
+
+@keyframes fadeOut {
+    from {
+		opacity:1;
+	}
+	to {
+		opacity:0;
+	}
+}
+
+
+@keyframes slideIn{
+    from{
+        right:-30vw
+    }
+    to{
+        right: 0px
+    }
+}
+
+
+@keyframes slideOut{
+    from{
+        right: 0vw;
+    }
+
+    to{
+        right: -30vw;
+    }
 }

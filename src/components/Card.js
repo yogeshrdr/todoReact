@@ -2,12 +2,17 @@ import React, { Component } from 'react';
 import '../css/card.css'
 
 export class Card extends Component {
+
+    onClickCard = () => {
+        const {onFilterChange, data} = this.props;
+        onFilterChange(data.name)
+    }
   render() {
     return (
-      <div className='todo__card'>
+      <button className={`todo__card ${this.props.isActive && 'todo_cardSelected'}`} onClick={this.onClickCard}>
             <div>{this.props.title}</div>
-            <div>{this.props.data}</div>
-      </div>
+            <div className='todo_cardData'>{this.props.data.length}</div>
+      </button>
     )
   }
 }
