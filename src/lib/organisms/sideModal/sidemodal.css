@@ -1,0 +1,81 @@
+.sidemodal__container{
+    display: block;
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    right: 0;
+    top: 0;
+    left: 0px;
+    background-color: rgb(182, 182, 182, 0.3);
+}
+
+.sidemodal{
+    display: block;
+    position: fixed;
+    z-index: 9999;
+    right: 0;
+    top: 0;
+    height: 100vh;
+    width: 30vw;
+    background-color: white;
+    border-left: 1px solid black;
+}
+
+.fadein{
+    animation: fadeIn .5s;
+    display: block;
+}
+
+.fadeout{
+    animation: fadeOut .5s;
+    display: none;
+}
+
+
+.slidein{
+    display: block;
+    animation: slideIn .5s;
+}
+
+.slideOut{
+    animation: slideOut .5s;
+    display: none;
+}
+
+
+@keyframes fadeIn{
+	from {
+		opacity:0;
+	}
+	to {
+		opacity:1;
+	}
+}
+
+@keyframes fadeOut{
+    from {
+		opacity:1;
+	}
+	to {
+		opacity:0;
+	}
+}
+
+
+@keyframes slideIn{
+    from{
+        right:-30vw
+    }
+    to{
+        right: 0px
+    }
+}
+
+@keyframes slideOut{
+    from{
+        right: 30vw;
+    }
+    to{
+        right: -30vw;
+    }
+}

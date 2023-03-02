@@ -1,0 +1,22 @@
+.tag{
+    display: flex;
+    flex-direction: row;
+    border-radius: 10px;
+    background-color: rgba(242, 242, 242, 0.882);
+    padding: 5px 20px;
+    border: none;
+    margin-right: 30px;
+}
+
+.tag__selected{
+    background-color: #E6E9FA;
+    color:#4F68F1;
+}
+
+.tag__data{
+    margin-left: 10px;
+}
+
+
+
+
