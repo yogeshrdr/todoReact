@@ -1,0 +1,22 @@
+.selectcontainer{
+    display: flex;
+    flex-direction: column;
+    padding: 10px 10px 0px 10px;
+}
+
+.selectcontainer> label{
+    font-size: 15px;
+    margin-bottom: 10px;
+    color: #444F5C;
+}
+
+
+.selectcontainer > select{
+    border: 1px solid #a0a1a1;
+    background-color: white;
+    padding: 10px;
+}
+
+.selectcontainer > select:focus{
+    border: 1px solid #4486F4;
+}
