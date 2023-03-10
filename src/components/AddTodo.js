@@ -1,10 +1,15 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Button, Input, Select } from '../lib';
-import './addTodo.css'
+import { ADDTODO } from '../redux/actions/todoAction';
+import './addTodo.css';
 
-export default class AddTodo extends Component {
+
+
+class AddTodo extends Component {
   constructor(){
     super();
+    this.state = {task: "", dueDate: "", priority: "low"}
     this.priority = [
       {value: "low", title: "Low"},
       {value: "medium", title:"Medium"},
@@ -12,14 +17,44 @@ export default class AddTodo extends Component {
     ];
   }
  
-  onChangeInput = (event) => {
-    const {onChange} = this.props;
-    onChange(event);
+  onChange = (event) => {
+    this.setState((prev) => ({
+      ...prev,
+      [event.target.name]: event.target.value
+    }));
   }
 
-  onSubmitTask = (event) =>{
-    const {onSubmit} = this.props;
-    onSubmit(event);
+  onSubmit = (event) =>{
+      event.preventDefault();
+      console.log("yes")
+
+        if(this.state.task === ''  || this.state.dueDate === ''){
+          alert('Please Fill Details')
+          return;
+        }
+        
+        const date = new Date(this.state.dueDate);
+        const dueDate = date.getTime();
+
+        const task = {
+          id: Date.now(),
+          progress: 'assign',
+          task : this.state.task,
+          dueDate,
+          priority: this.state.priority,
+          completedDate: null
+        };
+
+        this.props.ADDTODO(task);
+
+        this.setState({
+          task: "", 
+          dueDate: "", 
+          priority: "low", 
+        });
+
+        const {handleModal} = this.props;
+        handleModal(false);
   }
 
   handleCancel = ()  => {
@@ -35,13 +70,13 @@ export default class AddTodo extends Component {
             <Button btnType="canceltext" type="button" onClick={this.handleCancel}>X</Button>
         </div>
 
-        <form className='todolist__form ' onSubmit={this.onSubmitTask}>
+        <form className='todolist__form ' onSubmit={this.onSubmit}>
             <Input 
             label = 'Task'
             name = 'task'
             placeholder = 'Add Task....'
-            value = {this.props.value.task}
-            onChange={this.onChangeInput}
+            value = {this.state.task}
+            onChange={this.onChange}
             required={true}
             />             
                       
@@ -49,16 +84,16 @@ export default class AddTodo extends Component {
             label = 'Due Date'
             type="date" 
             name="dueDate" 
-            value={this.props.value.dueDate} 
-            onChange={this.onChangeInput}
+            value={this.state.dueDate} 
+            onChange={this.onChange}
             required = {true}
             />
 
             <Select
             label="Priority"
             name="priority"
-            value={this.props.value.priority}
-            onChange={this.onChangeInput}
+            value={this.state.priority}
+            onChange={this.onChange}
             options={this.priority}
             />
 
@@ -73,3 +108,9 @@ export default class AddTodo extends Component {
     )
   }
 }
+
+
+export default connect(
+  null,
+  { ADDTODO }
+)(AddTodo);

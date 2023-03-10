@@ -1,17 +1,18 @@
 import React, { Component } from 'react';
-import { setLocalStorage, getLocalStorage } from '../api/localApi';
-import Todo from './Todo';
 import '../css/todolist.css';
 import '../css/card.css';
 import { AiFillSetting } from "react-icons/ai";
-import {BsThreeDots} from "react-icons/bs";
 import {Tag, SideModal, Button, Dropdown} from '../lib';
 import Table from '../lib/organisms/table/Table';
 import AddTodo from './AddTodo';
 import { dateFormat } from '../utilites';
+import { connect } from 'react-redux';
+import { getFilter, getFilterTodos, getTodos } from '../redux/selectors';
+import { DELETETODO, FILTERTODO, UPDATETODO } from '../redux/actions/todoAction';
 
 
-export class TodoList extends Component {
+
+class TodoList extends Component {
    constructor(){
         super();
         this.state = {
@@ -32,94 +33,32 @@ export class TodoList extends Component {
         ];
     };
 
-    componentDidMount(){
-        const todos = getLocalStorage("todos"); //Constants
-        if(todos){
-          this.setState({
-            todos
-          });
-        }
-    };
-
-
-    handleInputChange = (event) => {
-        const inputValue = {...this.state.inputValue, [event.target.name]: event.target.value};
-        this.setState({
-          inputValue 
-        })
-    };
-
     handleModal = (value) => {
         this.setState({
           isOpen : value
         })
     };
-
-    handleTaskSubmit = (event) => {
-        event.preventDefault();
-
-        if(this.state.inputValue.task === ''  || this.state.inputValue.dueDate === ''){
-          alert('Please Fill Details')
-          return;
-        }
-        
-        const date = new Date(this.state.inputValue.dueDate);
-        const dueDate = date.getTime();
-
-        const task = {
-          id: Date.now(),
-          progress: 'assign',
-          task : this.state.inputValue.task,
-          dueDate,
-          priority: this.state.inputValue.priority,
-          completedDate: null
-        };
-
-        const todos = [...this.state.todos, task];
-        setLocalStorage("todos", todos);
-        const inputValue =  {task: "", dueDate: "", priority: "low"}
-
-        this.setState({
-          inputValue,
-          todos: [...this.state.todos, task],
-          filter: 'all',
-          isOpen: false
-        });
-    };
+ 
 
     handleTaskDelete = (id) => {
-        const todos = this.state.todos.filter(todo =>todo.id !== id);
-        setLocalStorage("todos", todos);
-        this.setState({
-          todos
-        });
-    };
-
-    handleTaskChange = (todo) => {
-        const todos = this.state.todos;
-        const index = this.state.todos.findIndex(t =>t.id === todo.id);
-        todos[index] = todo;
-        setLocalStorage("todos", todos);
-        this.setState({
-          todos
-        });
+        this.props.DELETETODO(id);
     };
     
     getTotalProgress = (value) => {
         if(value === 'all'){
-          return this.state.todos.length;
+          return this.props.allTodo.length;
         }
         var totalProgress = 0;
-        this.state.todos.forEach((todo)=>{
+        this.props.allTodo.forEach((todo)=>{
           if(todo.progress === value){
             totalProgress = totalProgress+1;
           }
         })
         return totalProgress;
-  };
+    };
 
     onFilterChange = (value) => {
-      var todos = this.state.todos;
+      var todos = this.props.todos;
       if(value === 'all'){
         return todos;
       }
@@ -129,7 +68,7 @@ export class TodoList extends Component {
     };
 
     onFilter = (value) => {
-      console.log('yes')
+      this.props.FILTERTODO(value)
       this.setState({filter: value});
     }
 
@@ -148,6 +87,7 @@ export class TodoList extends Component {
           });
        }
     };
+
 
     onCheckAll = (event) => {
         if(event.target.checked === true){
@@ -168,48 +108,25 @@ export class TodoList extends Component {
 
     onAction = (event) => {
         if(event.target.name ===  'delete'){
-          this.setState({
-            todos: []
-          });
-          return;
-        }
-      
-       const todos = this.state.todos;
-       todos.forEach((todo) => {
           this.state.oncheckSelect.forEach((id) => {
-            if(todo.id === id){
-              if(todo.progress!== 'done' && event.target.name === 'done'){
-                todo.completedDate = Date.now();
-              }
-      
-              if(event.target.name !== 'done'){
-                todo.completedDate = null;
-              }
-      
-              todo.progress = event.target.name
-            }
+            this.props.DELETETODO(id);
           })
-        });
-        setLocalStorage("todos", todos);
+        }
+        else{
+          this.state.oncheckSelect.forEach((id) => {
+            this.props.UPDATETODO(id, {type: 'progress', value: event.target.name})
+          });
+        }
+
         this.setState({
-          todos
-        });
+          oncheckSelect: []
+        })
+        
     }
 
 
-
-    onProgressChange = (event, id) => {
-      const todos = this.state.todos;
-      const todosIndex = this.state.todos.findIndex(todo =>todo.id === id);
-      todos[todosIndex].progress = event;
-
-      if(event === "done"){
-        todos[todosIndex].completedDate = Date.now();
-      }
-      setLocalStorage("todos", todos);
-      this.setState({
-        todos
-      });
+    onProgressChange = (value, id) => {
+      this.props.UPDATETODO(id, {type: 'progress', value})
     }
 
 
@@ -303,7 +220,7 @@ export class TodoList extends Component {
                 title={tag.title}
                 name={tag.name}
                 length={this.getTotalProgress(tag.name)}
-                isActive={this.state.filter === tag.name}
+                isActive={this.props.filter === tag.name}
                 onClick={this.onFilter}
                 />
               ))
@@ -325,8 +242,8 @@ export class TodoList extends Component {
         <SideModal isOpen={this.state.isOpen}>
           <AddTodo 
           value={this.state.inputValue}
-          onChange={this.handleInputChange}
-          onSubmit={this.handleTaskSubmit}
+          // onChange={this.handleInputChange}
+          // onSubmit={this.handleTaskSubmit}
           handleModal={this.handleModal}
           />     
         </SideModal>
@@ -338,41 +255,23 @@ export class TodoList extends Component {
           />
 
           {this.onFilterChange(this.state.filter).length === 0 && <div className='todo_notask'>No Record Found</div>}
-        </div>
-
-        
-
-          {/* {this.state.filtertodos.length === 0 ?
-          <div className='todo_notask'>No Record Found</div>
-          :
-          <table>
-              <thead>
-                <tr>
-                  <th><input type="checkbox"/></th>
-                  <th>Task</th>
-                  <th>Due Date</th>
-                  <th>Task Complete Date</th>
-                  <th>Progress</th>
-                  <th>Priority</th>
-                  <th><AiFillSetting size="20px"/></th>
-                </tr>
-              </thead>
-              <tbody>
-                {this.state.filtertodos.map((todo) => (
-                  <tr key={todo.id}>
-                  <Todo
-                  todo={todo}
-                  handleTaskDelete={this.handleTaskDelete}
-                  handleTaskChange={this.handleTaskChange}
-                  />
-                </tr>
-                ))}
-              </tbody>
-            </table>
-        } */}
+        </div>  
       </div>
     )
   }
 }
 
-export default TodoList;
+
+const mapStatetoProps = state => {
+    const allTodo = getTodos(state)
+    const todos = getFilterTodos(state);
+    const filter = getFilter(state);
+    return {allTodo,todos,filter};
+}
+
+//mapDispatchtoProps
+
+export default connect(
+  mapStatetoProps,
+  {FILTERTODO, DELETETODO, UPDATETODO}
+)(TodoList);
