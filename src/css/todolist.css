@@ -11,86 +11,80 @@
     background-color: rgb(252, 252, 252);
     padding-left: 20px;
     padding-right: 20px;
+   
 }
 
-.todolist_addtaskbtn{
-    background-color: transparent;
-    border: 1px solid rgb(18, 16, 16);
-    color: rgb(18, 16, 16);
+.todolist__formHeader{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    background-color: #EDEEF0;
+    height: 60px;
+    align-items: center;
+}
+
+.todolist__formHeading{
     padding: 10px;
-    border-radius: 10px;
+    font-size: 20px;
+    font-weight: bold;
 }
 
 .todolist__form{
     display: flex;
     flex-direction: column;
-    width: 50%;
-    margin-left: auto;
-    margin-right: auto;
-    align-items: center;
-    background-color: white;
-    padding: 20px;
+    background-color: transparent;
+    width: 100%;
     border-radius: 20px;
 }
 
-.todolist__form > label{
-    margin-top : 10px;
-    margin-bottom: 10px;
-}
 
-.todolist__form > input{
+.todolist__btncontainer{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    border-top: 1px solid black;
     padding: 10px;
-    width: 300px;
-}
-
-
-.todolist__form > select{
-    padding: 10px;
-    margin-bottom: 10px;
-    width: 300px;
-}
-
-.todolist__form > button{
-    padding: 10px;
-    width: 100px;
-}
-
-table{
-    margin-top: 40px;
-    padding: 20px;
-    width: 80%;
-    margin-right: auto;
-    margin-left: auto;
-    border: 1px solid black;
-    border: 1px solid black;
-    border-collapse: collapse;
-}
-
-th,td{
-    border: 1px solid black;
-    border-collapse: collapse;
-}
-
-
-.todo__modal{
-    display: block;
-    position: fixed;
-    left: 0;
-    top: 0;
-    z-index: 9999;
     width: 100%;
-    height: 100%;
-    padding-top: 100px;
-    background-color: black;
-    background-color: rgba(0, 0, 0, 0.4);
-    -webkit-transition: 0.5s;
-    overflow: auto;
-    transition: all 0.3s linear;
+    position: absolute;
+    bottom: 0px;
 }
-
 
 .todo_notask{
-    margin-top: 40px;
-    font-size: 30px;
-    
+    margin-top: 20vh;
+    font-size: 20px;
+    text-align: center;
+}
+
+.todo__filteraction{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.todo__table{
+    padding: 20px;
+}
+
+.tag__red{
+    background-color: #FFF0E1;
+    color: #FF8800;
+    border-radius: 20px;
+    padding: 2px 10px;
+    width: fit-content;
+}
+
+.tag__green{
+    background-color: #E1FAF0;
+    color: #06BC75;
+    border-radius: 20px;
+    padding: 2px 10px;
+    width: fit-content;
+}
+
+.tag__blue{
+    background-color: #E6E9FA;
+    color: #4F68F1;
+    border-radius: 20px;
+    padding: 2px 10px;
+    width: fit-content; 
 }

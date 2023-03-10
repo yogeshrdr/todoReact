@@ -13,65 +13,54 @@
 
 .todo__progresselect{
     border: none;
-    border-radius: 10px;
+    border-radius: 100px;
+    padding: 2px 5px;
 }
 
 .todo__assign{
-    background-color: red;
-    color: white
+    background-color:  #cd2c08e8 ;
+    color: white;
 }
 
 .todo__progress{
-    background-color: rgb(20, 86, 108);
+    background-color: #318dcba1;
     color: white;
 }
 
 .todo__progressdone{
-    background-color: green;
+    background-color: #12a412da;
     color: white;
 }
 
 .todo_delbtn{
     background-color: transparent;
-    border: 1px solid black;
+    border: none;
     border-radius: 10px;
     padding: 10px;
 }
 
 
 .todo__prioritylow{
-    padding: 10px;
-    padding-left: 20px;
-    padding-right: 20px;
-    border-radius: 10px;
+    padding: 2px 20px;
+    border-radius: 100px;
     width: fit-content;
-    margin-left: auto;
-    margin-right: auto;
-    background-color: green;
+    background-color: #12a412da;
     color: white;
 }
 
 .todo__priorityhigh{
-    padding: 10px;
-    padding-left: 20px;
-    padding-right: 20px;
-    border-radius: 10px;
+    padding: 2px 20px;
+    border-radius: 100px;
     width: fit-content;
-    margin-left: auto;
-    margin-right: auto;
-    background-color: red;
+    background-color:  #cd2c08e8;
     color: white;
 }
 
 .todo__prioritymedium{
-    padding: 10px;
-    padding-left: 20px;
-    padding-right: 20px;
-    border-radius: 10px;
+    padding: 2px 20px;
+    border-radius: 100px;
     width: fit-content;
-    margin-left: auto;
-    margin-right: auto;
-    background-color: blue;
+    background-color: #318dcba1;
     color: white;
 }
 

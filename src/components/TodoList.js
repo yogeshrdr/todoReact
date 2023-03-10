@@ -1,94 +1,55 @@
 import React, { Component } from 'react';
-import { setLocalStorage, getLocalStorage } from '../api/localApi';
-import Todo from './Todo';
 import '../css/todolist.css';
-import Card from './Card';
 import '../css/card.css';
+import { AiFillSetting } from "react-icons/ai";
+import {Tag, SideModal, Button, Dropdown} from '../lib';
+import Table from '../lib/organisms/table/Table';
+import AddTodo from './AddTodo';
+import { dateFormat } from '../utilites';
+import { connect } from 'react-redux';
+import { getFilter, getFilterTodos, getTodos } from '../redux/selectors';
+import { DELETETODO, FILTERTODO, UPDATETODO } from '../redux/actions/todoAction';
 
 
-export class TodoList extends Component {
+
+class TodoList extends Component {
    constructor(){
         super();
         this.state = {
             inputValue : {task: "", dueDate: "", priority: "low"},
             todos : [],
-            isOpen: false
+            isOpen: false,
+            filter: 'all',
+            filtertodos : [],
+            actionDisable: false,
+            oncheckSelect :[]
         };
-    };
 
-
-    componentDidMount(){
-        const todos = getLocalStorage("todos");
-        if(todos){
-          this.setState({
-            todos
-          });
-        }
-    };
-
-
-    handleInputChange = (event) => {
-        const inputValue = {...this.state.inputValue, [event.target.name]: event.target.value};
-        this.setState({
-          inputValue 
-        })
+        this.tags = [
+          {title: "All Task", name:"all"},
+          {title: "Assigned", name: "assign"},
+          {title: "In Progress", name:"progress"},
+          {title: "Task Completed", name:"done"}
+        ];
     };
 
     handleModal = (value) => {
         this.setState({
           isOpen : value
         })
-    }
-
-
-    handleTaskSubmit = (event) => {
-        event.preventDefault();
-
-        if(this.state.inputValue.task === ''  || this.state.inputValue.dueDate === ''){
-          alert('Please Fill Details')
-          return;
-        }
-
-        const task = {
-          id: Date.now(),
-          progress: 'assign',
-          task : this.state.inputValue.task,
-          dueDate: this.state.inputValue.dueDate,
-          priority: this.state.inputValue.priority
-        };
-
-        const todos = [...this.state.todos, task];
-        setLocalStorage("todos", todos);
-        const inputValue =  {task: "", dueDate: "", priority: "low"}
-
-        this.setState({
-          inputValue,
-          todos: [...this.state.todos, task],
-          isOpen: false
-        });
     };
+ 
 
     handleTaskDelete = (id) => {
-        const todos = this.state.todos.filter(todo =>todo.id !== id);
-        setLocalStorage("todos", todos);
-        this.setState({
-          todos
-        });
-    };
-
-    handleTaskChange = (todo) => {
-        const todos = this.state.todos;
-        const index = this.state.todos.findIndex(t =>t.id === todo.id);
-        todos[index] = todo;
-        setLocalStorage("todos", todos);
-        this.setState({
-          todos
-        });
+        this.props.DELETETODO(id);
     };
     
     getTotalProgress = (value) => {
+        if(value === 'all'){
+          return this.props.allTodo.length;
+        }
         var totalProgress = 0;
-        this.state.todos.forEach((todo)=>{
+        this.props.allTodo.forEach((todo)=>{
           if(todo.progress === value){
             totalProgress = totalProgress+1;
           }
@@ -96,97 +57,221 @@ export class TodoList extends Component {
         return totalProgress;
     };
 
+    onFilterChange = (value) => {
+      var todos = this.props.todos;
+      if(value === 'all'){
+        return todos;
+      }
+
+      todos = todos.filter(todo =>todo.progress === value);
+      return todos;
+    };
+
+    onFilter = (value) => {
+      this.props.FILTERTODO(value)
+      this.setState({filter: value});
+    }
+
+
+    onCheck = (event, id) => {
+       if(event.target.checked === true){
+          const checked = [...this.state.oncheckSelect, id];
+          this.setState({
+            oncheckSelect: checked
+          });
+       }
+       else{
+          const checked = this.state.oncheckSelect.filter((item) => item !== id);
+          this.setState({
+            oncheckSelect: checked
+          });
+       }
+    };
+
+
+    onCheckAll = (event) => {
+        if(event.target.checked === true){
+              var checkbox = [];
+              this.state.todos.forEach( todo => {
+                checkbox = [...checkbox, todo.id];
+              });
+
+              this.setState({
+                oncheckSelect: checkbox
+              });
+        }else{
+            this.setState({
+              oncheckSelect:[]
+            })
+        }
+    };
+
+    onAction = (event) => {
+        if(event.target.name ===  'delete'){
+          this.state.oncheckSelect.forEach((id) => {
+            this.props.DELETETODO(id);
+          })
+        }
+        else{
+          this.state.oncheckSelect.forEach((id) => {
+            this.props.UPDATETODO(id, {type: 'progress', value: event.target.name})
+          });
+        }
+
+        this.setState({
+          oncheckSelect: []
+        })
+        
+    }
+
+
+    onProgressChange = (value, id) => {
+      this.props.UPDATETODO(id, {type: 'progress', value})
+    }
+
+
+    tableHead = () => {
+      const headData = [
+          {
+              name: <input type="checkbox" checked={this.state.oncheckSelect.length >= 2} onChange={this.onCheckAll}/>,
+              dataKey: 'id',
+              renderer: (data) => {
+                  return <input type="checkbox" checked={this.state.oncheckSelect.includes(data)} onChange={(e) => this.onCheck(e, data)}/>
+              }
+          },
+          {
+              name: "Title",
+              dataKey: "task",
+              renderer: (data) => {
+                return data;
+              }
+          },
+          {
+              name: "Due Date",
+              dataKey: "dueDate",
+              renderer: (data) => {
+                  return dateFormat("dueDate", data);
+              }
+          },
+          {
+              name: "Completed Date",
+              dataKey: "completedDate",
+              renderer: (data) =>{
+                if(data==null){
+                  return '-';
+                }
+                return dateFormat("completedDate", data);
+              }
+          },
+          {
+              name: "Progress",
+              dataKey: "progress",
+              renderer: (data) => {
+                  return <div className={
+                    data === 'assign' ? 'tag__red' : data === 'progress' ? 'tag__blue' : 'tag__green'
+                  }>
+                    {data}
+                  </div>
+              }
+          },
+          {
+              name: "Priority",
+              dataKey: "priority",
+              renderer: (data) => {
+                return <div className={
+                  data === 'high' ? 'tag__red' : data === 'medium' ? 'tag__blue' : 'tag__green'
+                }>
+                  {data}
+                </div>
+              }
+          },
+          {
+              name: <AiFillSetting size="20px"/>,
+              dataKey: 'id',
+              renderer: (data) => {
+                  return <Dropdown type="text" title="..." disabled={false}>
+                      <Button btnType="text" onClick={() => this.onProgressChange("progress", data)}>Progress</Button>
+                      <Button btnType="text" onClick={() => this.onProgressChange("done", data)}>Done</Button>
+                      <Button btnType="text" onClick={() => this.handleTaskDelete(data)}>Delete</Button>
+                  </Dropdown>
+              }
+          }
+      ]
+  
+      return headData;
+  };
+
+
     
   render() {
-
     return (
       <div className='todolist'>
         <div className='todolist__header'>
           <h1>TodoList</h1>
-          <button className='todolist_addtaskbtn' onClick={() => this.handleModal(true)}>Add Task + </button>
+          <Button btnType="outlined" type="button" onClick={() => this.handleModal(true)}>Add Task + </Button>
         </div>
 
-        <div className='todo__cardsDetail'>
-        <Card 
-        title="Task Assign"
-        data={this.state.todos.length}
-        />
+        <div className='todo__filterContainer'>
+          <div className='todo__cardsDetail'>
+            {
+              this.tags.map((tag) => (
+                <Tag
+                key={tag.name}
+                title={tag.title}
+                name={tag.name}
+                length={this.getTotalProgress(tag.name)}
+                isActive={this.props.filter === tag.name}
+                onClick={this.onFilter}
+                />
+              ))
+            }
+          </div>
+          <div className='todo__filteraction'>
+          <div className='todo__filterResults'>Total Results : {this.getTotalProgress(this.state.filter)}</div>
+          <div className='btngap'></div>
 
-        <Card 
-        title="Task in Progress"
-        data={this.getTotalProgress('progress')}
-        />
-
-        <Card 
-        title="Task Done"
-        data={this.getTotalProgress('done')}
-        />
+          <Dropdown type="outlined" title="Action" disabled={this.state.oncheckSelect.length < 2}>
+              <Button name="progress" btnType="text" onClick={this.onAction}>All Progress</Button>
+              <Button name="done" btnType="text" onClick={this.onAction}>All Done</Button>
+              <Button name="delete" btnType="text" onClick={this.onAction}>All Delete</Button>
+          </Dropdown>
+          
+          </div>
         </div>
 
-        {this.state.isOpen && 
-                  <div className='todo__modal'>
-                  <form className='todolist__form' onSubmit={this.handleTaskSubmit}>
-                    <button className='todolist__closebtn' type="button" onClick={() => this.handleModal(false)}>X</button>
-                      <label>Task</label>
-                      <input 
-                      name="task" 
-                      value={this.state.inputValue.task} 
-                      onChange={this.handleInputChange}/>
-          
-                      <label>Due Date</label>
-                      <input 
-                      type="date" 
-                      name="dueDate" 
-                      value={this.state.inputValue.dueDate} 
-                      onChange={this.handleInputChange}/>
-          
-                      <label>Priority</label>
-                      <select 
-                      name="priority" 
-                      onChange={this.handleInputChange} 
-                      defaultValue={this.state.inputValue.priority}>
-                          <option value="low">low</option>
-                          <option value="medium">Medium</option>
-                          <option value="high">High</option>
-                      </select>
-          
-                      <button type="submit">Add Todo</button>
-                  </form>
-                  </div>
-        }
+        <SideModal isOpen={this.state.isOpen}>
+          <AddTodo 
+          value={this.state.inputValue}
+          // onChange={this.handleInputChange}
+          // onSubmit={this.handleTaskSubmit}
+          handleModal={this.handleModal}
+          />     
+        </SideModal>
+        
+        <div className='todo__table'>
+          <Table 
+          head={this.tableHead()}
+          body={this.onFilterChange(this.state.filter)}
+          />
 
-        {this.state.todos.length === 0 ? 
-          <div className='todo_notask'>No task Assign</div>
-          :
-          <table>
-          <thead>
-            <tr>
-              <th>Task</th>
-              <th>Due Date</th>
-              <th>Progreess</th>
-              <th>Priority</th>
-              <th>Delete</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {this.state.todos.map((todo) => (
-              <tr key={todo.id}>
-              <Todo
-              todo={todo}
-              handleTaskDelete={this.handleTaskDelete}
-              handleTaskChange={this.handleTaskChange}
-              />
-            </tr>
-            ))}
-          </tbody>
-        </table>
-        }
-
-       
+          {this.onFilterChange(this.state.filter).length === 0 && <div className='todo_notask'>No Record Found</div>}
+        </div>  
       </div>
     )
   }
 }
 
-export default TodoList
+
+const mapStatetoProps = state => {
+    const allTodo = getTodos(state)
+    const todos = getFilterTodos(state);
+    const filter = getFilter(state);
+    return {allTodo,todos,filter};
+}
+
+//mapDispatchtoProps
+
+export default connect(
+  mapStatetoProps,
+  {FILTERTODO, DELETETODO, UPDATETODO}
+)(TodoList);
